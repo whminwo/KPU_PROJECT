@@ -53,6 +53,8 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "qlabel": "cpp",
-        "qt": "cpp"
+        "qt": "cpp",
+        "qstackedwidget": "cpp",
+        "qapplication": "cpp"
     }
 }

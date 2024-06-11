@@ -18,16 +18,13 @@
 #include <iostream>
 #include <fstream>
 
+#include "file_manage.h"
 #include "account.h"
 
 Json::Value UserList = load_data();
 
 void showProfile() {
     QMessageBox::information(nullptr, "Profile", "Profile clicked!");
-}
-
-void showSettings() {
-    QMessageBox::information(nullptr, "Settings", "Settings clicked!");
 }
 
 void initLoginWindow(QStackedWidget *parent) {
@@ -63,6 +60,7 @@ void initLoginWindow(QStackedWidget *parent) {
 
         if (login(UserList, idStdString, passwordStdString) == 1) {
             QMessageBox::information(nullptr, "Login!", "Login successful!");
+            parent->setFixedSize(1200, 700);
             parent->setCurrentIndex(2);
 
         }else{
@@ -81,8 +79,7 @@ void initLoginWindow(QStackedWidget *parent) {
 }
 
 void initRegisterWindow(QStackedWidget *parent) {
-    QWidget *registerWindow = new QWidget();
-    registerWindow->setFixedSize(500, 400); 
+    QWidget *registerWindow = new QWidget(); 
     QVBoxLayout *layout = new QVBoxLayout(registerWindow);
     layout->setAlignment(Qt::AlignCenter);
 
@@ -152,7 +149,7 @@ void initFirstPageWindow(QStackedWidget *parent) {
 
     // 계정 메뉴 생성
     QMenu* accountMenu = new QMenu("Account");
-
+    
     // 계정 메뉴에 항목 추가
     QAction* profileAction = new QAction("Profile");
     QAction* settingsAction = new QAction("Settings");
@@ -161,15 +158,34 @@ void initFirstPageWindow(QStackedWidget *parent) {
     accountMenu->addAction(profileAction);
     accountMenu->addAction(settingsAction);
     accountMenu->addAction(logoutAction);
+    
+    QMenu* FileMenu = new QMenu("File");
+
+    QAction* newFileAction = new QAction("New File");
+    QAction* newFolderAction = new QAction("New Folder");
+    QAction* openFileAction = new QAction("Open File");
+    QAction* openFolderAction = new QAction("Open Folder");
+    QAction* openRecentAction = new QAction("Open Recent");
+    QAction* saveAction = new QAction("Save");
+
+    FileMenu->addAction(newFileAction);
+    FileMenu->addAction(newFolderAction);
+    FileMenu->addAction(openFileAction);
+    FileMenu->addAction(openFolderAction);
+    FileMenu->addAction(openRecentAction);
+    FileMenu->addAction(saveAction);
 
     // 메뉴 바에 계정 메뉴 추가
     menuBar->addMenu(accountMenu);
-
+    menuBar->addMenu(FileMenu);
+    
     // 메뉴 바의 계정 메뉴를 오른쪽으로 정렬
     QWidget* rightSpacer = new QWidget();
     rightSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     menuBar->setCornerWidget(rightSpacer, Qt::TopRightCorner);
     menuBar->addAction(accountMenu->menuAction());
+
+
 
     frameLayout->setMenuBar(menuBar);
 
@@ -181,15 +197,31 @@ void initFirstPageWindow(QStackedWidget *parent) {
     QVBoxLayout* mainLayout = new QVBoxLayout(firstPageWindow);
     mainLayout->addWidget(mainFrame);
 
+
     parent->addWidget(firstPageWindow);
 
     // QAction 시그널을 슬롯에 연결
     QObject::connect(profileAction, &QAction::triggered, &showProfile);
-    QObject::connect(settingsAction, &QAction::triggered, &showSettings);
+    QObject::connect(settingsAction, &QAction::triggered, [parent]() {
+        parent->setCurrentIndex(3);
+    });
 
     // 로그아웃 액션을 람다 함수로 연결하여 QStackedWidget 인덱스를 변경
     QObject::connect(logoutAction, &QAction::triggered, [parent]() {
-    parent->setCurrentIndex(0);
-    QMessageBox::information(nullptr, "Logout", "You have been logged out.");
+        parent->setFixedSize(500, 400); 
+        parent->setCurrentIndex(0);
+        QMessageBox::information(nullptr, "Logout", "You have been logged out.");
     });
+}
+
+void initSettingWindow(QStackedWidget *parent) {
+    QWidget *settingWindow = new QWidget();
+    parent->addWidget(settingWindow);
+}
+
+void initWindow(QStackedWidget *parent){
+    initLoginWindow(parent);
+    initRegisterWindow(parent);
+    initFirstPageWindow(parent);
+    initSettingWindow(parent);
 }
