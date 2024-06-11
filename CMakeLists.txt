@@ -47,3 +47,4 @@ target_link_libraries(${UI_LIB} ${ACCOUNT_LIB} Qt5::Widgets)
 add_executable(${TARGET} ${SOURCES})
 target_link_libraries(${TARGET} Qt5::Widgets ${UI_LIB} ${MANAGER_LIB})
 
+make_directory(data)
