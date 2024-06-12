@@ -46,6 +46,13 @@ void initLoginWindow(QStackedWidget *parent) {
     layout->addWidget(password);
 
     QCheckBox *showPasswordCheckbox = new QCheckBox("비밀번호 보이기", loginWindow);
+    QObject::connect(showPasswordCheckbox, &QCheckBox::stateChanged, [=](){
+        if (showPasswordCheckbox -> isChecked()){
+            password->setEchoMode(QLineEdit::Normal);
+        }else{
+            password->setEchoMode(QLineEdit::Password);
+        }
+    });
     layout->addWidget(showPasswordCheckbox);
 
     QPushButton *loginButton = new QPushButton("로그인", loginWindow);
@@ -74,6 +81,27 @@ void initLoginWindow(QStackedWidget *parent) {
     QObject::connect(toRegisterButton, &QPushButton::clicked, [=]() {
         parent->setCurrentIndex(1); // 회원가입 창으로 전환
     });
+    parent->setStyleSheet(R"(
+        QLineEdit {
+            border: 1px solid gray;
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+        QPushButton {
+            border: 1px solid #8f8f91;
+            border-radius: 6px;
+            background-color: #f3f3f3;
+            min-width: 80px;
+            margin-top: 5px;
+        }
+        QPushButton:pressed {
+            background-color: #a3a3a3;
+        }
+        QLabel {
+            qproperty-alignment: 'AlignCenter';
+        }
+    )");;
 
     parent->addWidget(loginWindow);
 }
