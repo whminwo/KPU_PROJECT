@@ -8,8 +8,8 @@ int main(int argc, char *argv[]) {
     QStackedWidget mainWidget;
 
     initWindow(&mainWidget);
-
     mainWidget.show();
+    
     return app.exec();
 }
 

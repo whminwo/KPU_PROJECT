@@ -1,8 +1,26 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <json/json.h> // jsoncpp 라이브러리
+#include <string.h>
+#include <time.h>
+#include <ctime>
 
 #include "file_manage.h"
+
+std::string now_local_date(){
+    char formatted_time[100];
+
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+    sprintf(formatted_time, "%d-%d-%d", 
+            tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+
+    std::string date_string(formatted_time);
+
+    return date_string;
+}
 
 Json::Value load_project_data() {
     Json::Value ProjectInfo;
@@ -39,19 +57,31 @@ bool is_duplicate2(const Json::Value& ProjectInfo, const std::string& project_na
     return false;
 }
 /*
+return 1 : 생성 완료
 return 0 : projectName이 겹침
+return -2 : 프로젝트 이름이 없음
+return -3 : Operater가 없음
 */
-int createProject(Json::Value& ProjectInfo, const std::string& project_name, const std::string& dead_line, const std::string& op_id, const std::string& member, const std::string& recent_edit_date){
+int createProject(Json::Value& ProjectInfo, const std::string& project_name, const std::string& dead_line, const std::string& op_id, const std::string& member){
     if (is_duplicate2(ProjectInfo, project_name)) {
         return 0;
     }
+    
+    if(op_id == ""){
+        return -2;
+    }
+    
+    if(project_name == ""){
+        return -3;
+    }
+
     
     Json::Value project_data;
     project_data["ProjectName"] = project_name;
     project_data["DeadLine"] = dead_line;
     project_data["Operater"] = op_id;
     project_data["Member"] = member;
-    project_data["RecentEditDate"] = recent_edit_date;
+    project_data["RecentEditDate"] = now_local_date();
 
     ProjectInfo.append(project_data);
     save_project_data(ProjectInfo);

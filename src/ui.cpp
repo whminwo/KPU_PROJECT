@@ -17,11 +17,21 @@
 
 #include <iostream>
 #include <fstream>
+#include <string.h>
 
 #include "file_manage.h"
 #include "account.h"
 
+
 Json::Value UserList = load_data();
+Json::Value ProjectInfo = load_project_data();
+std::string LoginID = "";
+
+std::string getTextBoxToStirng(QLineEdit *textBox){
+    QString textBoxText = textBox->text();
+    std::string textBoxStdString = textBoxText.toStdString();
+    return textBoxStdString;
+}
 
 void showProfile() {
     QMessageBox::information(nullptr, "Profile", "Profile clicked!");
@@ -67,6 +77,7 @@ void initLoginWindow(QStackedWidget *parent) {
 
         if (login(UserList, idStdString, passwordStdString) == 1) {
             QMessageBox::information(nullptr, "Login!", "Login successful!");
+            LoginID = idStdString;
             parent->setFixedSize(1200, 700);
             parent->setCurrentIndex(2);
 
@@ -139,14 +150,10 @@ void initRegisterWindow(QStackedWidget *parent) {
     QPushButton *registerButton = new QPushButton("회원가입", registerWindow);
     layout->addWidget(registerButton);
     QObject::connect(registerButton, &QPushButton::clicked, [=]() {
-        QString usernameText = username->text(); 
-        QString emailText = email->text();
-        QString idText = id->text();
-        QString passwordText = password->text();
-        std::string usernameStdString = usernameText.toStdString();
-        std::string emailStdString = emailText.toStdString();
-        std::string idStdString = idText.toStdString();
-        std::string passwordStdString = passwordText.toStdString();
+        std::string usernameStdString = getTextBoxToStirng(username);
+        std::string emailStdString = getTextBoxToStirng(email);
+        std::string idStdString = getTextBoxToStirng(id);
+        std::string passwordStdString = getTextBoxToStirng(password);
 
         if(create_account(UserList, usernameStdString, emailStdString, idStdString, passwordStdString)){
             parent->setCurrentIndex(0);
@@ -203,17 +210,24 @@ void initFirstPageWindow(QStackedWidget *parent) {
     FileMenu->addAction(openRecentAction);
     FileMenu->addAction(saveAction);
 
+    QMenu* ProjectMenu = new QMenu("Project");
+
+    QAction* createProjectAction = new QAction("Create Project");
+    QAction* openProjectAction = new QAction("Open Project");
+
+    ProjectMenu->addAction(createProjectAction);
+    ProjectMenu->addAction(openProjectAction);
+
     // 메뉴 바에 계정 메뉴 추가
     menuBar->addMenu(accountMenu);
     menuBar->addMenu(FileMenu);
+    menuBar->addMenu(ProjectMenu);
     
     // 메뉴 바의 계정 메뉴를 오른쪽으로 정렬
     QWidget* rightSpacer = new QWidget();
     rightSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     menuBar->setCornerWidget(rightSpacer, Qt::TopRightCorner);
     menuBar->addAction(accountMenu->menuAction());
-
-
 
     frameLayout->setMenuBar(menuBar);
 
@@ -236,9 +250,15 @@ void initFirstPageWindow(QStackedWidget *parent) {
 
     // 로그아웃 액션을 람다 함수로 연결하여 QStackedWidget 인덱스를 변경
     QObject::connect(logoutAction, &QAction::triggered, [parent]() {
+        LoginID = "";
         parent->setFixedSize(500, 400); 
         parent->setCurrentIndex(0);
         QMessageBox::information(nullptr, "Logout", "You have been logged out.");
+    });
+
+    QObject::connect(createProjectAction, &QAction::triggered, [parent]() {
+        parent->setFixedSize(500, 400); 
+        parent->setCurrentIndex(4);
     });
 }
 
@@ -247,9 +267,47 @@ void initSettingWindow(QStackedWidget *parent) {
     parent->addWidget(settingWindow);
 }
 
+void initcreateProjectwindow(QStackedWidget *parent){
+    QWidget *createProjectwindow = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout(createProjectwindow);
+    layout->setAlignment(Qt::AlignCenter);
+
+    QLabel *create_project = new QLabel("프로젝트 생성", createProjectwindow);
+    layout->addWidget(create_project);
+
+    QLineEdit *project_name = new QLineEdit(createProjectwindow);
+    project_name->setPlaceholderText("프로젝트 이름");
+    layout->addWidget(project_name);
+
+    QLineEdit *daed_line = new QLineEdit(createProjectwindow);
+    daed_line->setPlaceholderText("기한 ex)yyyy-mm-dd");
+    layout->addWidget(daed_line);
+
+    QLineEdit *member_id = new QLineEdit(createProjectwindow);
+    member_id->setPlaceholderText("멤버 아이디");
+    layout->addWidget(member_id);
+
+    QPushButton *createButton = new QPushButton("프로젝트 생성", createProjectwindow);
+    layout->addWidget(createButton);
+
+    QObject::connect(createButton, &QPushButton::clicked, [=]() {
+        std::string projectnameStdString = getTextBoxToStirng(project_name);
+        std::string daedLineStdString = getTextBoxToStirng(daed_line);
+        std::string memberIdStdString = getTextBoxToStirng(member_id);
+ 
+        if (createProject(ProjectInfo, projectnameStdString, daedLineStdString, LoginID, memberIdStdString)){
+            parent->setFixedSize(1200, 700);
+            parent->setCurrentIndex(2);
+        }
+    });
+
+    parent->addWidget(createProjectwindow);
+}
+
 void initWindow(QStackedWidget *parent){
     initLoginWindow(parent);
     initRegisterWindow(parent);
     initFirstPageWindow(parent);
     initSettingWindow(parent);
+    initcreateProjectwindow(parent);
 }

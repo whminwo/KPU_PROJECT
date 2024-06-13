@@ -39,11 +39,21 @@ bool is_duplicate(const Json::Value& UserList, const std::string& email, const s
     return false;
 }
 
-// 사용자 계정을 생성하는 함수
+/* 
+사용자 계정을 생성하는 함수
+return 1 : 생성 완료
+return 0 : 동일한 이름의 ID나 이메일이 있음
+return -1 : 입력이 이상함
+*/
 int create_account(Json::Value& UserList, const std::string& name, const std::string& email, const std::string& id, const std::string& pw, bool is_organizations) {
     if (is_duplicate(UserList, email, id)) {
         std::cerr << "Email or ID already exists. Cannot create account." << std::endl;
         return 0;
+    }
+
+    if(name == "" | email == "" | id == "" | pw == ""){
+        std::cerr << "Email or ID already exists. Cannot create account." << std::endl;
+        return -1;
     }
 
     Json::Value user_data;
