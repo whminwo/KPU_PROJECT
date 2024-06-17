@@ -14,6 +14,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QStackedWidget>
+#include <QTreeWidget>
 
 #include <iostream>
 #include <fstream>
@@ -35,6 +36,11 @@ std::string getTextBoxToStirng(QLineEdit *textBox){
 
 void showProfile() {
     QMessageBox::information(nullptr, "Profile", "Profile clicked!");
+}
+
+void createTreeWigetItem(QTreeWidget *treeWidget, int col , QString col_text){
+    QTreeWidgetItem *root = new QTreeWidgetItem(treeWidget);
+    root->setText(col, col_text);
 }
 
 void initLoginWindow(QStackedWidget *parent) {
@@ -177,7 +183,9 @@ void initFirstPageWindow(QStackedWidget *parent) {
     mainFrame->setFrameShape(QFrame::Box);
     mainFrame->setFrameShadow(QFrame::Raised);
 
-    QVBoxLayout* frameLayout = new QVBoxLayout(mainFrame);
+    QHBoxLayout* frameLayout = new QHBoxLayout(mainFrame);
+    QVBoxLayout* subFrameLayout = new QVBoxLayout(mainFrame);
+
 
     // 메뉴 바 생성
     QMenuBar* menuBar = new QMenuBar(mainFrame);
@@ -231,6 +239,12 @@ void initFirstPageWindow(QStackedWidget *parent) {
 
     frameLayout->setMenuBar(menuBar);
 
+    //
+    QTreeWidget* repositories = new QTreeWidget(mainFrame);
+    repositories->setHeaderLabels(QStringList() << "Repositories");
+    frameLayout->addWidget(repositories);
+    
+
     // 프레임 내부의 다른 콘텐츠 (예: 라벨)
     QLabel* label = new QLabel("This is inside a frame", mainFrame);
     frameLayout->addWidget(label);
@@ -259,6 +273,20 @@ void initFirstPageWindow(QStackedWidget *parent) {
     QObject::connect(createProjectAction, &QAction::triggered, [parent]() {
         parent->setFixedSize(500, 400); 
         parent->setCurrentIndex(4);
+    });
+
+    QObject::connect(openProjectAction, &QAction::triggered, [parent, repositories]() {
+        Json::Value rep_list = findProjectArray(ProjectInfo, LoginID);
+        
+        for (int i = 0; i < rep_list.size(); i++) {
+            Json::Value rep_project = rep_list[i];
+            if (!rep_project.isArray() || rep_project.size() != 5) {
+                std::cerr << "Error: Expected array with 5 elements at index " << i << std::endl;
+                continue;
+            }
+            std::string projectName = rep_project[0].asString();
+            createTreeWigetItem(repositories, i, QString::fromStdString(projectName));
+        }
     });
 }
 
@@ -294,7 +322,7 @@ void initcreateProjectwindow(QStackedWidget *parent){
         std::string projectnameStdString = getTextBoxToStirng(project_name);
         std::string daedLineStdString = getTextBoxToStirng(daed_line);
         std::string memberIdStdString = getTextBoxToStirng(member_id);
- 
+        
         if (createProject(ProjectInfo, projectnameStdString, daedLineStdString, LoginID, memberIdStdString)){
             parent->setFixedSize(1200, 700);
             parent->setCurrentIndex(2);

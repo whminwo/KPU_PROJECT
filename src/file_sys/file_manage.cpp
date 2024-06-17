@@ -56,12 +56,7 @@ bool is_duplicate2(const Json::Value& ProjectInfo, const std::string& project_na
     }
     return false;
 }
-/*
-return 1 : 생성 완료
-return 0 : projectName이 겹침
-return -2 : 프로젝트 이름이 없음
-return -3 : Operater가 없음
-*/
+
 int createProject(Json::Value& ProjectInfo, const std::string& project_name, const std::string& dead_line, const std::string& op_id, const std::string& member){
     if (is_duplicate2(ProjectInfo, project_name)) {
         return 0;
@@ -108,6 +103,23 @@ int deleteProject(Json::Value& ProjectInfo, const std::string& project_name, con
         }
     }
     return -1;
+}
+
+Json::Value findProjectArray(const Json::Value& ProjectInfo, const std::string& Operater) {
+    Json::Value projectsArray(Json::arrayValue);
+    
+    for (const auto& project : ProjectInfo) {
+        if (project["Operater"].asString() == Operater) {
+            Json::Value projectArray(Json::arrayValue);
+            projectArray.append(project["ProjectName"]);
+            projectArray.append(project["DeadLine"]);
+            projectArray.append(project["Operater"]);
+            projectArray.append(project["Member"]);
+            projectArray.append(project["RecentEditDate"]);
+            projectsArray.append(projectArray);
+        }
+    }
+    return projectsArray;
 }
 
 // //사용 에제
