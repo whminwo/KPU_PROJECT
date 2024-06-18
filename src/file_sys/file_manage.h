@@ -65,14 +65,14 @@ int createProject(Json::Value& ProjectInfo, const std::string& project_name, con
 int deleteProject(Json::Value& ProjectInfo, const std::string& project_name, const std::string& op_id);
 
 /**
- * @brief
+ * @brief projects managed by the operator as Json Value
  * 
  * This function uses the global variable ProjectInfo.
  * 
  * @param project_name      Project Title Name
  * @param Operater          Project Operater ID
  * 
- * @return 
+ * @return Returns all projects managed by the operator as Json Value
  * 
  */
 Json::Value findProjectArray(const Json::Value& ProjectInfo, const std::string& Operater);
