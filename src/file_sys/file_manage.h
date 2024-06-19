@@ -68,8 +68,7 @@ int deleteProject(Json::Value& ProjectInfo, const std::string& project_name, con
  * @brief projects managed by the operator as Json Value
  * 
  * This function uses the global variable ProjectInfo.
- * 
- * @param project_name      Project Title Name
+ *
  * @param Operater          Project Operater ID
  * 
  * @return Returns all projects managed by the operator as Json Value
